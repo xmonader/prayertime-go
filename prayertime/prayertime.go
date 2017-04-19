@@ -191,6 +191,36 @@ func New(longitude, latitude, zone float64, year int, month time.Month, day int,
 	}
 }
 
+// Returns the angle of the Qibla from north.
+func (self *Prayertime) GetQibla() float64 {
+	kLat := degToRad * (21.423333)
+	kLong := degToRad * (39.823333)
+
+	longitude := degToRad * (self.coordinate.longitude)
+	latitude := degToRad * (self.coordinate.latitude)
+
+	numerator := m.Sin(kLong - longitude)
+	denominator := (m.Cos(latitude) * m.Tan(kLat)) - (m.Sin(latitude) * m.Cos(kLong-longitude))
+	q := m.Atan2(numerator, denominator)
+
+	q = degToRad * (q)
+
+	return q
+}
+
+//Returns the distance to Kaaba in Kilometers."""
+func (self *Prayertime) GetQiblaDistance() float64 {
+	kLat := degToRad * (21.423333)
+	kLon := degToRad * (39.823333)
+
+	longitude := degToRad * (self.coordinate.longitude)
+	latitude := degToRad * (self.coordinate.latitude)
+
+	r := 6378.7 // kilometers
+
+	return m.Acos(m.Sin(kLat)*m.Sin(latitude)+m.Cos(kLat)*m.Cos(latitude)*m.Cos(longitude-kLon)) * r
+}
+
 // Show: prints the times for quick access.
 func (self *Prayertime) Show() {
 	fmt.Println(self.Fajr, self.Zuhr, self.Asr, self.Maghrib, self.Isha)
