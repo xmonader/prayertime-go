@@ -18,18 +18,18 @@ type coordinate struct {
 }
 
 type Prayertime struct {
-	date       time.Time
-	coordinate *coordinate
-	Calendar   int
-	Season     int
-	Mazhab     int
-	Fajr       float64
-	Shrouk     float64
-	Zuhr       float64
-	Asr        float64
-	Maghrib    float64
-	Isha       float64
-	dec        float64
+	date              time.Time
+	coordinate        *coordinate
+	CalculationMethod int
+	DST               bool
+	Mazhab            int
+	Fajr              float64
+	Shrouk            float64
+	Zuhr              float64
+	Asr               float64
+	Maghrib           float64
+	Isha              float64
+	dec               float64
 }
 
 func removeDuplication(val float64) float64 {
@@ -89,32 +89,32 @@ func (self *Prayertime) Calculate() {
 	fajrAlt := 0.0
 	ishaAlt := 0.0
 
-	if self.Calendar == UmmAlQuraUniversity {
+	if self.CalculationMethod == CalcUmmAlQuraUniversity {
 		fajrAlt = -19
-	} else if self.Calendar == EgyptianGeneralAuthorityOfSurvey {
+	} else if self.CalculationMethod == CalcEgyptianGeneralAuthorityOfSurvey {
 		fajrAlt = -19.5
 		ishaAlt = -17.5
-	} else if self.Calendar == MuslimWorldLeague {
+	} else if self.CalculationMethod == CalcMuslimWorldLeague {
 		fajrAlt = -18
 		ishaAlt = -17
-	} else if self.Calendar == IslamicSocietyOfNorthAmerica {
+	} else if self.CalculationMethod == CalcIslamicSocietyOfNorthAmerica {
 		fajrAlt = -15
 		ishaAlt = -15
-	} else if self.Calendar == UnivOfIslamicSciencesKarachi {
+	} else if self.CalculationMethod == CalcUnivOfIslamicSciencesKarachi {
 		fajrAlt = -18
 		ishaAlt = -18
 	}
 	fajr := localNoon - self.equation(fajrAlt)/15 // Fajr Time
 	isha := localNoon + self.equation(ishaAlt)/15 // Isha Time
 
-	if self.Calendar == UmmAlQuraUniversity {
+	if self.CalculationMethod == CalcUmmAlQuraUniversity {
 		isha = maghrib + 1.5
 
 	}
 
 	asrAlt := 0.0
 
-	if self.Mazhab == Hanafi {
+	if self.Mazhab == MazhabHanafi {
 		asrAlt = 90 - radToDeg*(m.Atan(2+m.Tan(degToRad*(m.Abs(latitude-self.dec)))))
 
 	} else {
@@ -123,7 +123,7 @@ func (self *Prayertime) Calculate() {
 	asr := localNoon + self.equation(asrAlt)/15 // Asr Time.
 
 	// Add one hour to all times if the season is Summmer.
-	if self.Season == Summer {
+	if self.DST == DSTOn {
 		fajr++
 		shrouk++
 		zuhr++
@@ -178,16 +178,16 @@ func ToHRTime(val float64, isAM bool) string {
 	time = fmt.Sprintf("%d:%d:%d %s", hours, minutes, seconds, zone)
 	return time
 }
-func New(longitude, latitude, zone float64, year int, month time.Month, day int, calendar int, mazhab int, season int) *Prayertime {
+func New(longitude, latitude, zone float64, year int, month time.Month, day int, calculationmethod int, mazhab int, dst bool) *Prayertime {
 	return &Prayertime{
 		coordinate: &coordinate{
 			latitude:  latitude,
 			longitude: longitude,
 			zone:      zone,
 		},
-		date:     time.Date(year, month, day, 0, 0, 0, 0, time.UTC),
-		Calendar: calendar,
-		Season:   season,
+		date:              time.Date(year, month, day, 0, 0, 0, 0, time.UTC),
+		CalculationMethod: calculationmethod,
+		DST:               dst,
 	}
 }
 

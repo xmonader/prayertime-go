@@ -2,6 +2,6 @@ package prayertime
 
 //Mazhab
 const (
-	Default = iota
-	Hanafi  = iota
+	MazhabDefault = iota
+	MazhabHanafi  = iota
 )
