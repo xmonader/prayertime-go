@@ -123,7 +123,7 @@ func (self *Prayertime) Calculate() {
 	asr := localNoon + self.equation(asrAlt)/15 // Asr Time.
 
 	// Add one hour to all times if the season is Summmer.
-	if self.DST == DSTOn {
+	if self.DST {
 		fajr++
 		shrouk++
 		zuhr++
